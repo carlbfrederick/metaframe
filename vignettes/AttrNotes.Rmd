@@ -1,0 +1,166 @@
+---
+title: "A metaframe codebook"
+author: "Carl Frederick"
+date: "August 31, 2015"
+output: html_document
+---
+
+These are my notes to self about interacting with data.frame attributes in R. 
+The ultimate goal is to develop a working model for the meta-frame package and
+writing a codebook function that access the codebook information.
+
+**Note: this file won't render completely, but the codebook will**
+
+# Setup
+
+I will create a fake data set to practice on:
+
+```{r fake data }
+  fake <- data.frame(x = floor(runif(100, 0, 101)))
+  fake$y = fake$x * .35 + rnorm(100, 0,5)
+  fake$c = letters[((fake$x %% 26) + 1)]
+  fake$f = LETTERS[((fake$x %% 5) + 1)]
+  fake$f <- factor(fake$f)
+ 
+  #add missing data
+  set.seed(8501)
+  
+  fake$y[sample(1:100, 10)] <- NA
+  fake$c[sample(1:100, 17)] <- NA
+  fake$f[sample(1:100, 13)] <- NA
+```
+
+# Metaframe object structure
+
+Based on our discussions, we decided that it might be best if all the metaframe
+attributes were saved in a single object.  Lets try out an object with the following
+structure:
+
+```{r metaframe structure}
+  metaframe <- NULL
+  metaframe$source <- list("this is the source info for the data.frame as a whole", 
+                           x = "http://fake.url", 
+                           y = "calculated",   
+                           c = "I made this up")
+  metaframe$units <- list(x = "units sold",
+                          y = "1925 Dollars")
+  metaframe$description <- list("Fictious data to test accessing attributes and writing a codebook function",
+                                x = "Number of units sold last year",
+                                y = "Net profits",
+                                c = "Salesperson initial",
+                                f = "Model Type")
+ 
+  attr(fake, "metaframe") <- metaframe
+  fake <- structure(fake, class = c("metaframe", "data.frame"))
+```
+
+
+# Simple codebook function
+
+In the end, I want the following structure for a codebook:
+
+----
+
+> **Column:** colname  
+> **Label:**  metaframe\$description\$colname  
+> **Type:**   class  
+> **Source:** metaframe\$source\$colname  
+> **Units:**  metaframe\$units\$colname  
+
+**Description**  
+`metaframe$annotation$colname`  
+`metaframe$revision$colname`
+
+**Summary**  
+if numeric then mean, sd, quantiles, num.missing
+if char/factor then table of (5/10? most common values), 
+
+----
+
+
+```{r codebook}
+codebook <- function(mf.obj, file=NULL, replace=FALSE, render=FALSE) {
+  if (!inherits(mf.obj, "metaframe")) {
+    stop("not a metaframe object")
+  }
+  varnames <- names(mf.obj)
+  nvars <- length(varnames)
+  meta_data <- attr(mf.obj, "metaframe")
+  mf.name <- deparse(substitute(mf.obj))
+  
+  if (is.null(file)) {
+    fname <- tempfile("codebook", fileext = ".Rmd")
+  } else {
+    if (file.exists(file)) {
+      if (replace) {
+        message(paste("Overwriting", file))
+        file.create(file)
+      } else {
+        stop(paste("File", file, "already exists. Set replace = TRUE to overwrite"))
+      }
+    } else {
+      file.create(file)
+    }
+    fname <- file(description = file, open = "r+")
+  }
+  
+  header <- c("---", paste('title: "Codebook for `', mf.name, '`"', sep=""), paste("date:", date()),
+      "output: ", "  html_document:", "    number_sections: no", "    toc: yes", "    toc_depth: 2", "---", "\n")
+  
+  cat(header, sep="\n", file=fname, append=FALSE)
+
+  
+  #Check for Data-level info
+  if (any(unlist(sapply(meta_data, names))=="")) {
+    varnames <- c("", varnames)
+    nvars <- nvars + 1
+  }
+  
+  #Cycle through (remember the two trailing spaces!)
+  for (i in 1:nvars) {
+    idx <-  names(meta_data$description)==varnames[i]
+    cb.name <-   paste("## `", varnames[i], "`  \n\n")
+    cb.label <-  paste("> **Label:  **", meta_data$description[idx], "  ")
+    cb.type <-   paste("> **Type:   **", ifelse(varnames[i]=="",  class(mf.obj), class(mf.obj[,varnames[i]])), "  ")
+    cb.source <- paste("> **Source: **", meta_data$source[idx], "  ")
+    cb.unit <-   paste("> **Units:  **", meta_data$units[idx], "  ")
+    cb.desc <-   paste(ifelse(varnames[i]=="", 
+                              paste("**Metaframe Description**  \n", meta_data$description[idx], "  \n\n"), 
+                              "**Description**  \n"),
+                       ifelse(is.null(meta_data$annotation[idx]), 
+                              "No annotations.  \n\n", 
+                              paste(meta_data$annotation[idx], "\n\n")),
+                       ifelse(is.null(meta_data$revision[idx]), 
+                              "No revisions.  \n\n", 
+                              paste(meta_data$revision[idx], "\n\n")),
+                       ifelse(varnames[i]=="", paste("Source: ", meta_data$source[idx], "  \n"), ""))
+    
+    if (varnames[i]=="") {
+      cat(c(cb.desc, "\n"), 
+          sep="\n", file=fname, append=TRUE)
+    } else  {
+      cat(c("---- \n", 
+            cb.name, cb.label, cb.type, cb.source, cb.unit, "\n", 
+            cb.desc, "\n",
+            "**Summary**  \nInfo in here", "\n"), sep="\n", file=fname, append=TRUE)
+    }
+  }
+
+  if (is.null(file)) {
+    if (render) browseURL(rmarkdown::render(fname))
+    unlink(fname)
+  }
+  if (!is.null(file)) {
+    if (render) browseURL(rmarkdown::render(file))
+    close(fname)
+  }
+}
+
+#debug(codebook)
+codebook(fake, render=TRUE)
+
+```
+
+The codebook should have opened in your browser!
+
+

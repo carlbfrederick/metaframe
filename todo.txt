@@ -5,3 +5,20 @@
 - Build source, description, annotation, and revisions objects, give them 
 some proper format and structure, and checkers/addition/subtraction operators
 
+
+# Misc
+
+- current common functions that add attributes to data.frame(like objects)
+  that we should avoid over writing and/or can look to for inspiration:
+  
+  - `stats::reshape`
+  - `dplyr`
+  - `data.table`
+  - `foreign` and `haven` 
+      - str(foreign::read.dta("http://www.stata-press.com/data/r12/lifeexp.dta"))
+      - str(haven::read_dta("http://www.stata-press.com/data/r13/lifeexp.dta"))
+        - and check out View(haven::read_dta("http://www.stata-press.com/data/r13/lifeexp.dta"))
+        - and haven::labelled()
+      
+- Also could create functions to access variable labels for 
+  plotting or making tables
