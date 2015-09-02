@@ -18,6 +18,8 @@ The object has the following items
 \item{description - a generic character string describing an object}
 \item{annotations - character strings describing any additional details about specific data elements}
 \item{revisions - a list of data revisions}
+\item{var_names - a character vector of column names in last known order}
+\item{obs_names - a charadcter vector of row names in last known order}
 }
 }
 \section{Objects from the Class}{

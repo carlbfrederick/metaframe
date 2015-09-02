@@ -1,23 +1,39 @@
 #' @title Add source information to data in R
-#' @param data a dataset to append with source information
-#' @param src a properly formatted source description to append
+#' @param object a dataset or meta.data object to append with source information
+#' @param src a properly formatted source description to append, a named list
 #' @description This function will add source data to a data object in R. If 
 #' source data already exists, it will modify the source data appropriately. 
 #' If source data does not exist, it will convert the object to a metaframe, 
 #' and append the source data correctly. 
 #' @export
-add_source <- function(data, src) UseMethod("add_source")
+add_source <- function(object, src) UseMethod("add_source")
+
+
+#' @title Add source information to a meta.data object
+#' @describeIn add_source
+#' @export
+add_source.meta.data <- function(object, src){
+#   if(is.null(object@sources)){
+#     object@sources <- src
+#   } else{
+#     
+#   }
+#   
+  
+}
+
+
 
 #' @title Add source information to a data.frame
 #' @describeIn add_source
 #' @export
-add_source.data.frame <- function(data, src){
+add_source.data.frame <- function(object, src){
   data <- metaframe(data)
   attr(data, "sources") <- src
   return(data)
 }
 
-# Sources should either be a list with elements = ncols data, or a subset of that 
+# Sources should either be a list with elements = ncols data + 1, or a subset of that 
 # that specify which columns attributed to which source
 
 

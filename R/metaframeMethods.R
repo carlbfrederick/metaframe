@@ -13,7 +13,7 @@ summary.meta.frame <- function(object, ...){
 #' @param ... ignored
 #' @export
 print.meta.frame <- function(x, ...){
-  message("Not written yet.")
+  # message("Not written yet.")
 }
 
 
@@ -23,5 +23,5 @@ print.meta.frame <- function(x, ...){
 #' @param ... ignored
 #' @export
 str.meta.frame <- function(object, ...){
-  message("Not written yet.")
+  # message("Not written yet.")
 }

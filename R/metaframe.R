@@ -39,6 +39,8 @@ setOldClass(c("meta.frame", "data.frame"))
 ##' \item{description - a generic character string describing an object}
 ##' \item{annotations - character strings describing any additional details about specific data elements}
 ##' \item{revisions - a list of data revisions}
+##' \item{var_names - a character vector of column names in last known order}
+##' \item{obs_names - a charadcter vector of row names in last known order}
 ##' }
 ##' @seealso \code{\link{meta.frame}}
 ##' @keywords classes
@@ -52,7 +54,9 @@ meta.data <- setClass("meta.data", representation(
   units = "list", 
   description = "list", 
   annotations = "list", 
-  revisions = "list"),   S3methods=TRUE)
+  revisions = "list", 
+  var_names = "character", 
+  obs_names = "character"),   S3methods=TRUE)
 
 #' @title Setting meta.data from a data.frame object
 #' @rdname document
@@ -62,13 +66,16 @@ document.data.frame <- function(data, sources = NULL, units=NULL,
                                 description=NULL, annotations=NULL, 
                                 revisions=NULL){
   if (!is.data.frame(data)) stop("data must be a data.frame")
+  K <- ncol(data) + 1
   if(is.null(sources)){
-    sources <- list("No sources listed.")
+    sources <- vector(mode = "list", length = K)
+    names(sources) <- c("OVERALL", colnames(data))
   } else if(class(sources) != "list"){
     sources <- as.list(sources)
   }
   if(is.null(description)){
-    description <- list("No sources listed.")
+    description <- vector(mode = "list", length = K)
+    names(description) <- c("OVERALL", colnames(data))
   } else if(class(description) != "list"){
     description <- as.list(description)
   }
@@ -83,7 +90,8 @@ document.data.frame <- function(data, sources = NULL, units=NULL,
     revisions <- as.list(revisions)
   }
   if(is.null(units)){
-    units <- list("No units listed.")
+    units <- vector(mode = "list", length = K-1)
+    names(units) <- colnames(data)
   } else if(class(units) != "list"){
     units <- as.list(units)
   }
@@ -92,7 +100,9 @@ document.data.frame <- function(data, sources = NULL, units=NULL,
                      units = units, 
                      description = description, 
                      annotations = annotations, 
-                     revisions = revisions)
+                     revisions = revisions, 
+                     var_names = colnames(data), 
+                     obs_names = rownames(data))
   return(outMD)
 } 
 

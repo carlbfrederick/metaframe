@@ -3,19 +3,22 @@
 \name{add_source}
 \alias{add_source}
 \alias{add_source.data.frame}
+\alias{add_source.meta.data}
 \alias{add_source.metaframe}
 \title{Add source information to data in R}
 \usage{
-add_source(data, src)
+add_source(object, src)
 
-\method{add_source}{data.frame}(data, src)
+\method{add_source}{meta.data}(object, src)
+
+\method{add_source}{data.frame}(object, src)
 
 \method{add_source}{metaframe}(data, src)
 }
 \arguments{
-\item{data}{a dataset to append with source information}
+\item{object}{a dataset or meta.data object to append with source information}
 
-\item{src}{a properly formatted source description to append}
+\item{src}{a properly formatted source description to append, a named list}
 }
 \description{
 This function will add source data to a data object in R. If
@@ -23,12 +26,16 @@ source data already exists, it will modify the source data appropriately.
 If source data does not exist, it will convert the object to a metaframe,
 and append the source data correctly.
 
+Add source information to a meta.data object
+
 Add source information to a data.frame
 
 Add source information to a meta.frame
 }
 \section{Methods (by class)}{
 \itemize{
+\item \code{meta.data}: 
+
 \item \code{data.frame}: 
 
 \item \code{metaframe}: 

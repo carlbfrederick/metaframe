@@ -21,7 +21,7 @@ print.meta.data <- function(x, ...){
 ##' @method summary meta.data
 #' @export
 summary.meta.data <- function(object, ...){
-  message("Not written yet.")
+  # message("Not written yet.")
 }
 
 
@@ -31,5 +31,5 @@ summary.meta.data <- function(object, ...){
 #' @param ... ignored
 #' @export
 str.meta.data <- function(object, ...){
-  message("Not written yet.")
+  # message("Not written yet.")
 }
