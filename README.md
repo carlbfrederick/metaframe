@@ -26,6 +26,14 @@ enhancements.
 `metaframe` organizes your `meta.data` into a few categories -- some of which it 
 can helpfully auto-complete for you. 
 
+### Example
+
+```r
+library(metaframe)
+doco <- document(airquality)
+```
+
+
 
 
 [1]: The object is deliberately named with a period, `meta.data`, to avoid 
